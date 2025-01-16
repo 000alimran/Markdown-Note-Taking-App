@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Note Taking App</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Markdown Note Taking App</h1>
+            <button id="addNoteBtn">Add New Note</button>
+        </header>
+
+        <div class="notes-container">
+            <div class="notes-sidebar">
+                <h2>My Notes</h2>
+                <div id="notesList"></div>
+            </div>
+
+            <div class="note-editor">
+                <div class="editor-header">
+                    <input type="text" id="noteTitle" placeholder="Note Title">
+                    <div class="editor-buttons">
+                        <button id="saveNoteBtn">Save</button>
+                        <button id="deleteNoteBtn">Delete</button>
+                    </div>
+                </div>
+                <div class="editor-container">
+                    <textarea id="noteContent" placeholder="Write your note in markdown..."></textarea>
+                    <div id="preview"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
