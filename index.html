@@ -5,25 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown Note Taking App</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Marked.js for Markdown parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Markdown Note Taking App</h1>
-            <button id="addNoteBtn">Add New Note</button>
+            <div class="header-buttons">
+                <button id="addNoteBtn">Add New Note</button>
+                <button id="manageCategoriesBtn">Manage Categories</button>
+            </div>
         </header>
 
         <div class="notes-container">
             <div class="notes-sidebar">
-                <h2>My Notes</h2>
+                <div class="category-filter">
+                    <h3>Categories</h3>
+                    <select id="categoryFilter">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
                 <div id="notesList"></div>
             </div>
 
             <div class="note-editor">
                 <div class="editor-header">
                     <input type="text" id="noteTitle" placeholder="Note Title">
+                    <select id="noteCategory">
+                        <option value="">Select Category</option>
+                    </select>
                     <div class="editor-buttons">
                         <button id="saveNoteBtn">Save</button>
                         <button id="deleteNoteBtn">Delete</button>
@@ -36,6 +46,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Category Management Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <h2>Manage Categories</h2>
+            <div class="category-input">
+                <input type="text" id="newCategoryName" placeholder="New Category Name">
+                <input type="color" id="newCategoryColor" value="#3498db">
+                <button id="addCategoryBtn">Add Category</button>
+            </div>
+            <div id="categoriesList" class="categories-list"></div>
+            <button id="closeCategoryModal" class="close-modal">Close</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
