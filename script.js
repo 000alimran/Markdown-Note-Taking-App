@@ -1,206 +1,126 @@
-// Additional DOM Elements for Categories
+const notes = [];
+const categories = [];
+
+const noteTitleInput = document.getElementById('noteTitle');
+const noteCategoryInput = document.getElementById('noteCategory');
+const noteContentInput = document.getElementById('noteContent');
+const previewElement = document.getElementById('preview');
+const notesListElement = document.getElementById('notesList');
+const categoryFilterElement = document.getElementById('categoryFilter');
+
+const saveNoteBtn = document.getElementById('saveNoteBtn');
+const deleteNoteBtn = document.getElementById('deleteNoteBtn');
+const addNoteBtn = document.getElementById('addNoteBtn');
 const manageCategoriesBtn = document.getElementById('manageCategoriesBtn');
 const categoryModal = document.getElementById('categoryModal');
-const closeCategoryModal = document.getElementById('closeCategoryModal');
-const newCategoryName = document.getElementById('newCategoryName');
-const newCategoryColor = document.getElementById('newCategoryColor');
+const closeCategoryModalBtn = document.getElementById('closeCategoryModal');
 const addCategoryBtn = document.getElementById('addCategoryBtn');
-const categoriesList = document.getElementById('categoriesList');
-const categoryFilter = document.getElementById('categoryFilter');
-const noteCategory = document.getElementById('noteCategory');
+const newCategoryNameInput = document.getElementById('newCategoryName');
+const newCategoryColorInput = document.getElementById('newCategoryColor');
+const categoriesListElement = document.getElementById('categoriesList');
 
-// Extended State
-let categories = JSON.parse(localStorage.getItem('categories')) || [
-    { id: 'default', name: 'General', color: '#3498db' }
-];
-
-// Update notes structure to include category
-let notes = JSON.parse(localStorage.getItem('notes')) || [];
-notes = notes.map(note => ({
-    ...note,
-    categoryId: note.categoryId || 'default'
-}));
-
-// Category Management Event Listeners
-manageCategoriesBtn.addEventListener('click', () => {
-    categoryModal.classList.add('active');
-    renderCategoriesList();
-});
-
-closeCategoryModal.addEventListener('click', () => {
-    categoryModal.classList.remove('active');
-});
-
-addCategoryBtn.addEventListener('click', addCategory);
-categoryFilter.addEventListener('change', renderNotesList);
-
-// Category Management Functions
-function addCategory() {
-    const name = newCategoryName.value.trim();
-    if (!name) return;
-
-    const category = {
-        id: Date.now().toString(),
-        name: name,
-        color: newCategoryColor.value
-    };
-
-    categories.push(category);
-    saveCategories();
-    renderCategoriesList();
-    updateCategorySelects();
-    
-    newCategoryName.value = '';
-    showNotification('ক্যাটাগরি যোগ করা হয়েছে!');
+function renderPreview() {
+    const markdownText = noteContentInput.value;
+    previewElement.innerHTML = marked(markdownText);
 }
 
-function deleteCategory(categoryId) {
-    if (categoryId === 'default') {
-        showNotification('ডিফল্ট ক্যাটাগরি মুছে ফেলা যাবে না!', 'error');
-        return;
-    }
-
-    if (confirm('এই ক্যাটাগরি মুছে ফেলতে চান? এর সাথে যুক্ত নোটগুলো "General" ক্যাটাগরিতে চলে যাবে।')) {
-        // Move notes to default category
-        notes = notes.map(note => ({
-            ...note,
-            categoryId: note.categoryId === categoryId ? 'default' : note.categoryId
-        }));
-
-        categories = categories.filter(cat => cat.id !== categoryId);
-        saveCategories();
-        saveToLocalStorage();
-        renderCategoriesList();
-        updateCategorySelects();
-        renderNotesList();
-        showNotification('ক্যাটাগরি মুছে ফেলা হয়েছে!');
-    }
-}
-
-function renderCategoriesList() {
-    categoriesList.innerHTML = categories.map(category => `
-        <div class="category-item">
-            <div style="display: flex; align-items: center;">
-                <div class="category-color-preview" style="background-color: ${category.color}"></div>
-                ${category.name}
-            </div>
-            ${category.id !== 'default' ? `
-                <button class="delete-category" onclick="deleteCategory('${category.id}')">
-                    Delete
-                </button>
-            ` : ''}
-        </div>
-    `).join('');
-}
-
-function updateCategorySelects() {
-    // Update category filter
-    categoryFilter.innerHTML = `
-        <option value="all">All Categories</option>
-        ${categories.map(category => `
-            <option value="${category.id}">${category.name}</option>
-        `).join('')}
-    `;
-
-    // Update note category select
-    noteCategory.innerHTML = categories.map(category => `
-        <option value="${category.id}">${category.name}</option>
-    `).join('');
-}
-
-// Override existing functions to include categories
 function renderNotesList() {
-    const selectedCategory = categoryFilter.value;
-    const filteredNotes = selectedCategory === 'all' 
-        ? notes 
-        : notes.filter(note => note.categoryId === selectedCategory);
-
-    notesList.innerHTML = filteredNotes.map(note => {
-        const category = categories.find(cat => cat.id === note.categoryId) || categories[0];
-        return `
-            <div class="note-item ${note.id === currentNoteId ? 'active' : ''}" 
-                 data-note-id="${note.id}"
-                 onclick="selectNote(${note.id})">
-                <div class="category-indicator" style="background-color: ${category.color}"></div>
-                <div class="note-title">${note.title}</div>
-                <div class="note-meta">
-                    ${new Date(note.createdAt).toLocaleDateString('bn-BD')}
-                </div>
-            </div>
-        `;
-    }).join('');
+    notesListElement.innerHTML = '';
+    const filteredNotes = notes.filter(note => {
+        if (categoryFilterElement.value === 'all') return true;
+        return note.category === categoryFilterElement.value;
+    });
+    filteredNotes.forEach(note => {
+        const noteItem = document.createElement('div');
+        noteItem.classList.add('note-item');
+        noteItem.textContent = note.title;
+        noteItem.addEventListener('click', () => loadNote(note));
+        notesListElement.appendChild(noteItem);
+    });
 }
 
-function selectNote(noteId) {
-    currentNoteId = noteId;
-    const note = notes.find(note => note.id === noteId);
-    
-    if (note) {
-        noteTitle.value = note.title;
-        noteContent.value = note.content;
-        noteCategory.value = note.categoryId;
-        updatePreview();
-        
-        document.querySelectorAll('.note-item').forEach(item => {
-            item.classList.remove('active');
-            if (item.dataset.noteId === noteId.toString()) {
-                item.classList.add('active');
-            }
-        });
-    }
+function renderCategories() {
+    noteCategoryInput.innerHTML = '<option value="">Select Category</option>';
+    categoryFilterElement.innerHTML = '<option value="all">All Categories</option>';
+
+    categories.forEach(category => {
+        const categoryOption = document.createElement('option');
+        categoryOption.value = category.name;
+        categoryOption.textContent = category.name;
+        categoryOption.style.backgroundColor = category.color;
+        noteCategoryInput.appendChild(categoryOption);
+
+        const filterOption = categoryOption.cloneNode(true);
+        categoryFilterElement.appendChild(filterOption);
+    });
 }
 
 function saveNote() {
-    if (!currentNoteId) return;
-    
-    const noteIndex = notes.findIndex(note => note.id === currentNoteId);
-    if (noteIndex !== -1) {
-        notes[noteIndex] = {
-            ...notes[noteIndex],
-            title: noteTitle.value,
-            content: noteContent.value,
-            categoryId: noteCategory.value,
-            updatedAt: new Date().toISOString()
-        };
-        
-        saveToLocalStorage();
-        renderNotesList();
-        showNotification('নোট সেভ করা হয়েছে!');
-    }
-}
+    const title = noteTitleInput.value;
+    const category = noteCategoryInput.value;
+    const content = noteContentInput.value;
+    if (!title || !content) return alert('Title and content are required.');
 
-function createNewNote() {
-    const note = {
-        id: Date.now(),
-        title: 'নতুন নোট',
-        content: '',
-        categoryId: 'default',
-        createdAt: new Date().toISOString()
-    };
-    
-    notes.unshift(note);
-    saveToLocalStorage();
-    renderNotesList();
-    selectNote(note.id);
-}
-
-// Save categories to localStorage
-function saveCategories() {
-    localStorage.setItem('categories', JSON.stringify(categories));
-}
-
-// Modified initialize function
-function initializeApp() {
-    updateCategorySelects();
-    renderNotesList();
-    updatePreview();
-    
-    if (notes.length > 0) {
-        selectNote(notes[0].id);
+    const existingNote = notes.find(note => note.title === title);
+    if (existingNote) {
+        existingNote.category = category;
+        existingNote.content = content;
     } else {
-        createNewNote();
+        notes.push({ title, category, content });
     }
+    renderNotesList();
+    clearNoteEditor();
 }
 
-// Initialize the app
-initializeApp();
+function deleteNote() {
+    const title = noteTitleInput.value;
+    const noteIndex = notes.findIndex(note => note.title === title);
+    if (noteIndex !== -1) notes.splice(noteIndex, 1);
+    renderNotesList();
+    clearNoteEditor();
+}
+
+function clearNoteEditor() {
+    noteTitleInput.value = '';
+    noteCategoryInput.value = '';
+    noteContentInput.value = '';
+    renderPreview();
+}
+
+function loadNote(note) {
+    noteTitleInput.value = note.title;
+    noteCategoryInput.value = note.category;
+    noteContentInput.value = note.content;
+    renderPreview();
+}
+
+function toggleCategoryModal() {
+    categoryModal.style.display = categoryModal.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function addCategory() {
+    const name = newCategoryNameInput.value;
+    const color = newCategoryColorInput.value;
+    if (!name) return alert('Category name is required.');
+
+    if (categories.find(category => category.name === name)) {
+        return alert('Category already exists.');
+    }
+
+    categories.push({ name, color });
+    renderCategories();
+    newCategoryNameInput.value = '';
+    newCategoryColorInput.value = '#3498db';
+}
+
+addNoteBtn.addEventListener('click', clearNoteEditor);
+manageCategoriesBtn.addEventListener('click', toggleCategoryModal);
+closeCategoryModalBtn.addEventListener('click', toggleCategoryModal);
+saveNoteBtn.addEventListener('click', saveNote);
+deleteNoteBtn.addEventListener('click', deleteNote);
+addCategoryBtn.addEventListener('click', addCategory);
+noteContentInput.addEventListener('input', renderPreview);
+categoryFilterElement.addEventListener('change', renderNotesList);
+
+renderCategories();
+renderNotesList();
