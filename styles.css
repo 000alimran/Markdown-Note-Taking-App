@@ -12,6 +12,8 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    padding: 10px;
+    border: 1px solid #ccc;
 }
 
 header {
@@ -21,6 +23,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid #ccc;
 }
 
 .header-buttons button {
@@ -42,6 +45,7 @@ header {
 .notes-container {
     display: flex;
     flex: 1;
+    gap: 10px;
 }
 
 .notes-sidebar {
@@ -50,6 +54,8 @@ header {
     padding: 1rem;
     overflow-y: auto;
     border-right: 1px solid #ddd;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 
 .category-filter select {
@@ -69,6 +75,8 @@ header {
     display: flex;
     flex-direction: column;
     padding: 1rem;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 
 .editor-header {
@@ -112,6 +120,7 @@ header {
     border-radius: 5px;
     background-color: white;
     font-family: monospace;
+    padding: 10px;
 }
 
 #preview {
@@ -120,6 +129,7 @@ header {
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #f9f9f9;
+    padding: 10px;
 }
 
 .modal {
@@ -141,6 +151,8 @@ header {
     max-width: 500px;
     width: 90%;
     text-align: center;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 
 .modal-content h2 {
@@ -170,4 +182,23 @@ header {
 
 .close-modal:hover {
     background-color: #2980b9;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .notes-container {
+        flex-direction: column;
+    }
+
+    .notes-sidebar {
+        width: 100%;
+    }
+
+    .note-editor {
+        width: 100%;
+    }
+
+    .editor-container {
+        flex-direction: column;
+    }
 }
